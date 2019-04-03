@@ -1,0 +1,8 @@
+'replace_leaf-correct', (0, 70)
+'total_weight-correct', (512, 70)
+'totals_tree-correct', (1024, 70)
+'make_counter-correct', (1536, 70)
+'make_fib-correct', (2048, 70)
+'make_withdraw-correct', (2560, 70)
+'make_joint-correct', (3072, 70)
+'generate_paths-correct', (3584, 70)

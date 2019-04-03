@@ -99,7 +99,13 @@ def replace_leaf(t, old, new):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    if is_leaf(t):
+        if label(t) == old:
+            return tree(new)
+        else:
+            return t
+    else:
+        return tree(label(t), [replace_leaf(a, old, new) for a in branches(t)])
 # Mobiles
 
 def mobile(left, right):
@@ -145,11 +151,13 @@ def weight(size):
     """Construct a weight of some size."""
     assert size > 0
     "*** YOUR CODE HERE ***"
+    return ['weight', size]
 
 def size(w):
     """Select the size of a weight."""
     assert is_weight(w), 'must call size on a weight'
     "*** YOUR CODE HERE ***"
+    return w[1]
 
 def is_weight(w):
     """Whether w is a weight."""
@@ -198,6 +206,14 @@ def balanced(m):
     False
     """
     "*** YOUR CODE HERE ***"
+    if is_weight(m):
+        return True
+
+    l, r = left(m), right(m)
+    if length(l) * total_weight(end(l)) != length(r) * total_weight(end(r)):
+        return False
+
+    return balanced(end(l)) and balanced(end(r))    
 
 def totals_tree(m):
     """Return a tree representing the mobile with its total weight at the root.
@@ -225,6 +241,11 @@ def totals_tree(m):
           2
     """
     "*** YOUR CODE HERE ***"
+    if is_weight(m):
+        branches = []
+    else:
+        branches = [totals_tree(end(left(m))), totals_tree(end(right(m)))]
+    return tree(total_weight(m), branches)
 
 # Mutable functions in Python
 
@@ -249,6 +270,11 @@ def make_counter():
     5
     """
     "*** YOUR CODE HERE ***"
+    counter = {}
+    def recorder(s):
+       counter[s] = counter.get(s,0)+1
+       return counter[s]
+    return recorder
 
 def make_fib():
     """Returns a function that returns the next Fibonacci number
@@ -270,6 +296,12 @@ def make_fib():
     12
     """
     "*** YOUR CODE HERE ***"
+    start, res = 0, 1
+    def fib():
+        nonlocal res, start
+        res, start = start, res + start
+        return res
+    return fib
 
 def make_withdraw(balance, password):
     """Return a password-protected withdraw function.
@@ -300,6 +332,20 @@ def make_withdraw(balance, password):
     True
     """
     "*** YOUR CODE HERE ***"
+    count, lst = 0, []
+    def withdraw(amount,pwd):
+        nonlocal balance, password, count, lst
+        if count >= 3:
+            return "Your account is locked. Attempts: " + str(lst[:3])
+        if pwd != password:
+            lst.append(pwd)
+            count += 1
+            return 'Incorrect password'
+        if amount > balance:
+           return 'Insufficient funds'
+        balance = balance - amount
+        return balance
+    return withdraw
 
 def make_joint(withdraw, old_password, new_password):
     """Return a password-protected withdraw function that has joint access to
@@ -340,6 +386,16 @@ def make_joint(withdraw, old_password, new_password):
     "Your account is locked. Attempts: ['my', 'secret', 'password']"
     """
     "*** YOUR CODE HERE ***"
+    try_wd = withdraw(0, old_password)
+    if type(try_wd) == str:
+        return try_wd
+    
+    def joint(amount, new_pwd):
+        if new_pwd == new_password:
+            return withdraw(amount, old_password)
+        return withdraw(amount, new_pwd)
+    return joint
+    
 
 # Generators
 
@@ -378,6 +434,13 @@ def generate_paths(t, x):
     [[0, 2], [0, 2, 1, 2]]
     """
     "*** YOUR CODE HERE ***"
+    if label(t) == x:
+        yield [x]
+    
+    for bs in branches(t):
+        paths = generate_paths(bs,x)
+        for res in paths:
+            yield [label(t)]+res
 
 ###################
 # Extra Questions #
